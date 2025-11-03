@@ -1,13 +1,17 @@
 import { type Connector, createConnector } from 'wagmi';
-import { AegisProvider } from './aegisProvider';
+import { AegisProvider, AegisProviderConfig } from './aegisProvider';
 import { getAddress } from 'viem';
 
 const AEGIS_WALLET_ID = 'aegis';
 const AEGIS_WALLET_NAME = 'AEGIS WALLET';
 const AEGIS_TYPE = 'aegis';
 
+interface AegisConnectorConfig {
+  providerConfig: Omit<AegisProviderConfig, 'chain'>;
+}
+
 // life cycle: setup => getProvider => connect
-const aegisConnector = () => {
+const aegisConnector = ({ providerConfig }: AegisConnectorConfig) => {
   let provider: AegisProvider | null = null;
 
   let accountsChanged: Connector['onAccountsChanged'] | undefined;
@@ -24,13 +28,15 @@ const aegisConnector = () => {
       console.log('AEGIS connector: setup called');
     },
     async getProvider({ chainId } = {}) {
-      console.log('AEGIS connector: getProvider called', { chainId });
+      // console.log('AEGIS connector: getProvider called', { chainId });
       if (!provider) {
         // Find chain by chainId if provided, otherwise use first chain
         const chain = chainId ? config.chains.find(c => c.id === chainId) || config.chains[0] : config.chains[0];
 
         provider = new AegisProvider({
           chain,
+          onPasswordRequest: providerConfig.onPasswordRequest,
+          selectConnection: providerConfig.selectConnection,
         });
       }
 
