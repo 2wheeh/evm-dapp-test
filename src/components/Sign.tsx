@@ -7,7 +7,7 @@ export const SignTx = () => {
 
   return (
     <div>
-      <h2>SignTx</h2>
+      <h2>Sign Message</h2>
 
       {/* <div>
         <button
@@ -24,14 +24,7 @@ export const SignTx = () => {
         <div>Signed Transaction: {signedTx} </div>
       </div> */}
       <div>
-        <button
-          onClick={() => {
-            signMessage({ message: 'Hello Aegis!' });
-          }}
-        >
-          signMessage (personal_sign)
-        </button>
-
+        <button onClick={() => signMessage({ message: 'Hello Aegis!' })}>signMessage (personal_sign)</button>
         <div>signMessage Signature: {hash}</div>
       </div>
     </div>
