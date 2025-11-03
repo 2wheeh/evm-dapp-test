@@ -6,6 +6,36 @@ import {
 } from 'wagmi/codegen'
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// helloWorld
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const helloWorldAbi = [
+  { type: 'constructor', inputs: [], stateMutability: 'nonpayable' },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'helloWorld',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'newText', internalType: 'string', type: 'string' }],
+    name: 'setText',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+] as const
+
+export const helloWorldAddress =
+  '0x07a2449a9140053A7CD8a9D704701B98D405bb1C' as const
+
+export const helloWorldConfig = {
+  address: helloWorldAddress,
+  abi: helloWorldAbi,
+} as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ipTokenStaking
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1481,6 +1511,58 @@ export const lstTokenConfig = {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // React
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link helloWorldAbi}__
+ */
+export const useReadHelloWorld = /*#__PURE__*/ createUseReadContract({
+  abi: helloWorldAbi,
+  address: helloWorldAddress,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link helloWorldAbi}__ and `functionName` set to `"helloWorld"`
+ */
+export const useReadHelloWorldHelloWorld = /*#__PURE__*/ createUseReadContract({
+  abi: helloWorldAbi,
+  address: helloWorldAddress,
+  functionName: 'helloWorld',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link helloWorldAbi}__
+ */
+export const useWriteHelloWorld = /*#__PURE__*/ createUseWriteContract({
+  abi: helloWorldAbi,
+  address: helloWorldAddress,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link helloWorldAbi}__ and `functionName` set to `"setText"`
+ */
+export const useWriteHelloWorldSetText = /*#__PURE__*/ createUseWriteContract({
+  abi: helloWorldAbi,
+  address: helloWorldAddress,
+  functionName: 'setText',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link helloWorldAbi}__
+ */
+export const useSimulateHelloWorld = /*#__PURE__*/ createUseSimulateContract({
+  abi: helloWorldAbi,
+  address: helloWorldAddress,
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link helloWorldAbi}__ and `functionName` set to `"setText"`
+ */
+export const useSimulateHelloWorldSetText =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: helloWorldAbi,
+    address: helloWorldAddress,
+    functionName: 'setText',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link ipTokenStakingAbi}__

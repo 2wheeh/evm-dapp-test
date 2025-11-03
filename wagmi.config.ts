@@ -657,6 +657,10 @@ export default defineConfig({
           name: 'ipTokenStaking',
           address: '0xcccccc0000000000000000000000000000000001',
         },
+        {
+          name: 'helloWorld',
+          address: '0x07a2449a9140053A7CD8a9D704701B98D405bb1C',
+        },
         // not varified yet
         // {
         //   name: 'lattixManager',
