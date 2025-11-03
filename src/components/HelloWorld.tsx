@@ -6,7 +6,7 @@ import { encodeFunctionData, formatEther } from 'viem';
 
 export const HelloWorld = () => {
   const [text, setText] = useState('');
-  const { data: simulatedTx, error } = useSimulateHelloWorldSetText({
+  const { data: simulatedTx, error: simulationError } = useSimulateHelloWorldSetText({
     args: [text],
     query: { enabled: Boolean(text) },
   });
@@ -28,7 +28,7 @@ export const HelloWorld = () => {
 
   const { data: feeData } = useEstimateFeesPerGas();
 
-  const { writeContract, data: hash } = useWriteHelloWorldSetText();
+  const { writeContract, data: hash, error: sendError } = useWriteHelloWorldSetText();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
   });
@@ -70,7 +70,8 @@ export const HelloWorld = () => {
           }}
         />
         <div>{text ? (estimatedFee ? `Est. Fee: ${formatEther(estimatedFee)}` : 'Estimating...') : 'Enter text'}</div>{' '}
-        {error && <div>Error: {(error as BaseError).shortMessage || error.message}</div>}
+        {simulationError && <div>Error: {(simulationError as BaseError).shortMessage || simulationError.message}</div>}
+        {sendError && <div>Error: {(sendError as BaseError).shortMessage || sendError.message}</div>}
       </div>
       {hash && <div>Transaction Hash: {hash}</div>}
       {isConfirming && <div>Waiting for confirmation...</div>}

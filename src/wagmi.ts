@@ -4,6 +4,8 @@ import { baseAccount, injected } from 'wagmi/connectors';
 import { aegis } from './aegis/aegisConnector';
 import { TEST_ENCRYPTED_SECRET, TEST_PASSWROD, TEST_PUBLIC_KEY, TEST_UUID, TEST_WALLET_ADDRESS, wait } from './utils';
 import { aegisStorageManager } from './aegis/aegisStorage';
+import { useModalStore } from './stores/useModalStore';
+import { usePasswordStore } from './stores/usePasswordStore';
 // import { UserRejectedRequestError } from 'viem';
 
 export const config = createConfig({
@@ -15,7 +17,10 @@ export const config = createConfig({
     aegis({
       providerConfig: {
         onPasswordRequest: async () => {
-          return TEST_PASSWROD;
+          const { setIsPasswordModalOpen } = useModalStore.getState();
+          setIsPasswordModalOpen(true);
+          const { requestPassword } = usePasswordStore.getState();
+          return requestPassword();
         },
         selectConnection: async () => {
           console.log('AegisProvider: selectConnection called - open UI social login modal here');

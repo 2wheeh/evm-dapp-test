@@ -111,6 +111,12 @@ export class AegisProvider implements Provider, EIP1193Events {
           console.log('AegisProvider: [eth_requestAccounts] try to connect wallet as no wallets found in storage?');
           await this.config.selectConnection();
 
+          if (!this.walletClient) {
+            this.walletClient = createWalletClient({
+              chain: this.config.chain,
+              transport: http(),
+            });
+          }
           // 1. wallet.connect open connect flow with connect modal ui
           // 여기서 useConnect state pending => connecter 에서 request 응답 기다리는 동안 react query 로 처리 해줌
           // 모달 중간에 닫음 UserRejected 로 처리되어야함 => // throw new UserRejectedRequestError(new Error('User rejected connection'));
@@ -223,6 +229,8 @@ export class AegisProvider implements Provider, EIP1193Events {
           this.storage.wallets.find(w => w.address === this.selectedWalletAddress)!.encryptedSecret
         );
 
+        console.log('AegisProvider: sending transaction - account obtained');
+
         const [txRequest] = args.params as MethodParamsMap['eth_sendTransaction'];
 
         console.log('AegisProvider: sending transaction', txRequest);
@@ -275,8 +283,14 @@ export class AegisProvider implements Provider, EIP1193Events {
 
     const privateKeyOrMnemonic = new TextDecoder().decode(decryptedSecret);
 
-    return isHex(privateKeyOrMnemonic)
-      ? privateKeyToAccount(privateKeyOrMnemonic)
-      : mnemonicToAccount(privateKeyOrMnemonic);
+    try {
+      return isHex(privateKeyOrMnemonic)
+        ? privateKeyToAccount(privateKeyOrMnemonic)
+        : mnemonicToAccount(privateKeyOrMnemonic);
+    } catch {
+      throw new ProviderRpcError(new Error('Failed to derive account from decrypted secret'), {
+        shortMessage: 'Invalid password', // dapp uses this to show error to user
+      });
+    }
   }
 }
