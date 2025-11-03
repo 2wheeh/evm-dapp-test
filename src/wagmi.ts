@@ -1,13 +1,15 @@
 import { createConfig, http } from 'wagmi';
 import { mainnet, sepolia } from 'wagmi/chains';
-import { baseAccount, injected, walletConnect } from 'wagmi/connectors';
+import { baseAccount, injected } from 'wagmi/connectors';
+import { aegis } from './aegis/aegisConnector';
 
 export const config = createConfig({
   chains: [mainnet, sepolia],
   connectors: [
     injected(),
     baseAccount(),
-    walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID }),
+    // walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID }),
+    aegis(),
   ],
   transports: {
     [mainnet.id]: http(),
@@ -17,6 +19,6 @@ export const config = createConfig({
 
 declare module 'wagmi' {
   interface Register {
-    config: typeof config
+    config: typeof config;
   }
 }
