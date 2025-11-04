@@ -1,4 +1,4 @@
-import { useAccount, useBalance, useBlockNumber } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import { formatEther } from 'viem';
 // import { useQueryClient } from '@tanstack/react-query';
 // import { useEffect } from 'react';
@@ -6,7 +6,7 @@ import { formatEther } from 'viem';
 export const Balance = () => {
   const { address } = useAccount();
   // const { data: blockNumber } = useBlockNumber({ watch: true });
-  const { data: balance, queryKey } = useBalance({
+  const { data: balance } = useBalance({
     address,
   });
 
