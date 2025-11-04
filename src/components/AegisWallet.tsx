@@ -1,67 +1,55 @@
-import { UserRejectedRequestError } from 'viem';
+import { useEffect, useMemo, useState } from 'react';
 
-import { useModalStore } from '../stores/useModalStore';
-import { usePasswordStore } from '../stores/usePasswordStore';
+import { AegisProvider } from '../aegis/aegisProvider';
+import { AegisUIPlugin } from '../aegis/AegisUIPlugin';
 import { PasswordModal } from './PasswordModal';
 import { SocialLoginModal } from './SocialLoginModal';
-import { useSocialLoginStore } from '../stores/useSocialLoginStore';
-import { useWalletSelectStore } from '../stores/useWalletSelectStore';
 import { WalletSelectModal } from './WalletSelectModal';
 
 export const AegisWallet = () => {
-  const isPasswordModalOpen = useModalStore(state => state.isPasswordModalOpen);
-  const setIsPasswordModalOpen = useModalStore(state => state.setIsPasswordModalOpen);
-  const resolvePassword = usePasswordStore(state => state.resolvePassword);
-  const cancelPassword = usePasswordStore(state => state.cancelPassword);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isSocialLoginModalOpen, setIsSocialLoginModalOpen] = useState(false);
+  const [isWalletSelectModalOpen, setIsWalletSelectModalOpen] = useState(false);
 
-  const isSocialLoginModalOpen = useModalStore(state => state.isSocialLoginModalOpen);
-  const setIsSocialLoginModalOpen = useModalStore(state => state.setIsSocialLoginModalOpen);
-  const resolveLogin = useSocialLoginStore(state => state.resolveLogin);
-  const cancelLogin = useSocialLoginStore(state => state.cancelLogin);
+  const uiPlugin = useMemo(() => new AegisUIPlugin(), []);
 
-  const isWalletSelectModalOpen = useModalStore(state => state.isWalletSelectModalOpen);
-  const setIsWalletSelectModalOpen = useModalStore(state => state.setIsWalletSelectModalOpen);
-  const resolveWalletSelect = useWalletSelectStore(state => state.resolveSelect);
-  const cancelWalletSelect = useWalletSelectStore(state => state.cancelSelect);
+  useEffect(() => {
+    AegisProvider.registerUIPlugin(uiPlugin);
+
+    uiPlugin.registerModalCallbacks({
+      openPasswordModal: () => setIsPasswordModalOpen(true),
+      closePasswordModal: () => setIsPasswordModalOpen(false),
+      openSocialLoginModal: () => setIsSocialLoginModalOpen(true),
+      closeSocialLoginModal: () => setIsSocialLoginModalOpen(false),
+      openWalletSelectModal: () => setIsWalletSelectModalOpen(true),
+      closeWalletSelectModal: () => setIsWalletSelectModalOpen(false),
+    });
+
+    return () => {
+      AegisProvider.registerUIPlugin(null);
+    };
+  }, [uiPlugin]);
 
   return (
     <div>
       {isPasswordModalOpen && (
         <PasswordModal
-          onConfirm={password => {
-            resolvePassword(password);
-            setIsPasswordModalOpen(false);
-          }}
-          onCancel={() => {
-            cancelPassword(new UserRejectedRequestError(new Error('User cancelled password input')));
-            setIsPasswordModalOpen(false);
-          }}
+          onConfirm={password => uiPlugin.resolvePassword(password)}
+          onCancel={() => uiPlugin.cancelPassword()}
         />
       )}
 
       {isSocialLoginModalOpen && (
         <SocialLoginModal
-          onConfirm={() => {
-            setIsSocialLoginModalOpen(false);
-            resolveLogin();
-          }}
-          onCancel={() => {
-            cancelLogin(new UserRejectedRequestError(new Error('User cancelled social login')));
-            setIsSocialLoginModalOpen(false);
-          }}
+          onConfirm={() => uiPlugin.resolveSocialLogin()}
+          onCancel={() => uiPlugin.cancelSocialLogin()}
         />
       )}
 
       {isWalletSelectModalOpen && (
         <WalletSelectModal
-          onConfirm={() => {
-            setIsWalletSelectModalOpen(false);
-            resolveWalletSelect();
-          }}
-          onCancel={() => {
-            cancelWalletSelect(new UserRejectedRequestError(new Error('User cancelled wallet selection')));
-            setIsWalletSelectModalOpen(false);
-          }}
+          onConfirm={() => uiPlugin.resolveWalletSelect()}
+          onCancel={() => uiPlugin.cancelWalletSelect()}
         />
       )}
     </div>

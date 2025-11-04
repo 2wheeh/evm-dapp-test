@@ -1,17 +1,13 @@
 import { type Connector, createConnector } from 'wagmi';
-import { AegisProvider, AegisProviderConfig } from './aegisProvider';
+import { AegisProvider } from './aegisProvider';
 import { getAddress } from 'viem';
 
 const AEGIS_WALLET_ID = 'aegis';
 const AEGIS_WALLET_NAME = 'AEGIS WALLET';
 const AEGIS_TYPE = 'aegis';
 
-interface AegisConnectorConfig {
-  providerConfig: Omit<AegisProviderConfig, 'chain'>;
-}
-
 // life cycle: setup => getProvider => connect
-const aegisConnector = ({ providerConfig }: AegisConnectorConfig) => {
+const aegisConnector = () => {
   let provider: AegisProvider | null = null;
 
   let accountsChanged: Connector['onAccountsChanged'] | undefined;
@@ -35,9 +31,6 @@ const aegisConnector = ({ providerConfig }: AegisConnectorConfig) => {
 
         provider = new AegisProvider({
           chain,
-          // TODO: provider config callback 전달 X. Provider 내부에서 관리하면 됨
-          onPasswordRequest: providerConfig.onPasswordRequest,
-          selectConnection: providerConfig.selectConnection,
         });
       }
 

@@ -22,6 +22,7 @@ import { mnemonicToAccount, privateKeyToAccount } from 'viem/accounts';
 import { storyAeneid } from 'wagmi/chains';
 
 import { aegisStorageManager } from './aegisStorage';
+import { AegisUIPlugin } from './AegisUIPlugin';
 
 type EventMap = {
   [K in keyof EIP1193EventMap]: Parameters<EIP1193EventMap[K]>[0];
@@ -63,11 +64,15 @@ interface Provider {
 
 export interface AegisProviderConfig {
   chain: Chain;
-  onPasswordRequest: () => Promise<string>;
-  selectConnection: () => Promise<void>;
 }
 
 export class AegisProvider implements Provider, EIP1193Events {
+  private static uiPlugin: AegisUIPlugin | null = null;
+
+  static registerUIPlugin(plugin: AegisUIPlugin | null) {
+    this.uiPlugin = plugin;
+  }
+
   private emitter: Emitter<EventMap>;
   private walletClient: WalletClient | undefined = undefined;
   private config: AegisProviderConfig;
@@ -109,7 +114,9 @@ export class AegisProvider implements Provider, EIP1193Events {
       switch (args.method) {
         case 'eth_requestAccounts': {
           console.log('AegisProvider: [eth_requestAccounts] try to connect wallet as no wallets found in storage?');
-          await this.config.selectConnection();
+
+          const uiPlugin = this.getUiPlugin();
+          await uiPlugin.requestConnection();
 
           if (!this.walletClient) {
             this.walletClient = createWalletClient({
@@ -155,9 +162,12 @@ export class AegisProvider implements Provider, EIP1193Events {
       // 잘 안쓰임
       case 'eth_signTransaction': {
         console.log('AegisProvider: eth_signTransaction called');
+
+        const uiPlugin = this.getUiPlugin();
+
         // TODO abstract to wallet
         const account = this.getAccount(
-          await this.config.onPasswordRequest(),
+          await uiPlugin.requestPassword(),
           this.storage.wallets.find(w => w.address === this.selectedWalletAddress)!.encryptedSecret
         );
 
@@ -192,8 +202,10 @@ export class AegisProvider implements Provider, EIP1193Events {
       }
 
       case 'personal_sign': {
+        const uiPlugin = this.getUiPlugin();
+
         const account = this.getAccount(
-          await this.config.onPasswordRequest(),
+          await uiPlugin.requestPassword(),
           this.storage.wallets.find(w => w.address === this.selectedWalletAddress)!.encryptedSecret
         );
 
@@ -223,9 +235,11 @@ export class AegisProvider implements Provider, EIP1193Events {
           });
         }
 
+        const uiPlugin = this.getUiPlugin();
+
         // TODO abstract to wallet
         const account = this.getAccount(
-          await this.config.onPasswordRequest(),
+          await uiPlugin.requestPassword(),
           this.storage.wallets.find(w => w.address === this.selectedWalletAddress)!.encryptedSecret
         );
 
@@ -274,6 +288,16 @@ export class AegisProvider implements Provider, EIP1193Events {
   }
 
   // helpers - TODO abstract to wallet
+  private getUiPlugin(): AegisUIPlugin {
+    if (!AegisProvider.uiPlugin) {
+      throw new ProviderRpcError(new Error('AegisWallet component not mounted'), {
+        code: 4900,
+        shortMessage: 'AegisWallet component not mounted. Please add <AegisWallet /> to your app.',
+      });
+    }
+    return AegisProvider.uiPlugin;
+  }
+
   private getAccount(password: string, encryptedSecret: string, salt = '') {
     const decryptedSecret = Decrypt(
       encryptedSecret,
