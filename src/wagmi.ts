@@ -5,6 +5,7 @@ import { aegis } from './aegis/aegisConnector';
 import { useModalStore } from './stores/useModalStore';
 import { usePasswordStore } from './stores/usePasswordStore';
 import { useSocialLoginStore } from './stores/useSocialLoginStore';
+import { useWalletSelectStore } from './stores/useWalletSelectStore';
 
 export const config = createConfig({
   chains: [storyAeneid],
@@ -26,6 +27,10 @@ export const config = createConfig({
           setIsSocialLoginModalOpen(true);
           const { requestLogin } = useSocialLoginStore.getState();
           await requestLogin();
+          const { setIsWalletSelectModalOpen } = useModalStore.getState();
+          setIsWalletSelectModalOpen(true);
+          const { requestSelect } = useWalletSelectStore.getState();
+          await requestSelect();
         },
       },
     }),

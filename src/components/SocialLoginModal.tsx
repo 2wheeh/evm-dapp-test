@@ -2,7 +2,15 @@ import { useMutation } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 import { aegisStorageManager } from '../aegis/aegisStorage';
-import { TEST_ENCRYPTED_SECRET, TEST_PUBLIC_KEY, TEST_UUID, TEST_WALLET_ADDRESS } from '../utils';
+import {
+  TEST_ENCRYPTED_SECRET,
+  TEST_ENCRYPTED_SECRET_2,
+  TEST_PUBLIC_KEY,
+  TEST_PUBLIC_KEY_2,
+  TEST_UUID,
+  TEST_WALLET_ADDRESS,
+  TEST_WALLET_ADDRESS_2,
+} from '../utils';
 
 interface SocialLoginModalProps {
   onConfirm: () => void;
@@ -60,6 +68,10 @@ const useLoadSharesFromCitadel = () => {
       // aegisStorage.loadFromShares(message.data.shares, message.data.uuid);
 
       // load from citadel
+      // Encrypt(
+
+      // )
+
       aegisStorageManager.setCurrentUUID(TEST_UUID);
       aegisStorageManager.setStorage({
         wallets: [
@@ -70,11 +82,16 @@ const useLoadSharesFromCitadel = () => {
             publicKey: TEST_PUBLIC_KEY,
             version: 'V1',
           },
+          {
+            address: TEST_WALLET_ADDRESS_2,
+            name: 'Test Wallet 2',
+            encryptedSecret: TEST_ENCRYPTED_SECRET_2,
+            publicKey: TEST_PUBLIC_KEY_2,
+            version: 'V1',
+          },
         ],
       });
 
-      // user select a wallet
-      aegisStorageManager.setSelectedWalletAddress(TEST_WALLET_ADDRESS);
       return true;
     },
   });

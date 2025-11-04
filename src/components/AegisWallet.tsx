@@ -5,6 +5,8 @@ import { usePasswordStore } from '../stores/usePasswordStore';
 import { PasswordModal } from './PasswordModal';
 import { SocialLoginModal } from './SocialLoginModal';
 import { useSocialLoginStore } from '../stores/useSocialLoginStore';
+import { useWalletSelectStore } from '../stores/useWalletSelectStore';
+import { WalletSelectModal } from './WalletSelectModal';
 
 export const AegisWallet = () => {
   const isPasswordModalOpen = useModalStore(state => state.isPasswordModalOpen);
@@ -16,6 +18,11 @@ export const AegisWallet = () => {
   const setIsSocialLoginModalOpen = useModalStore(state => state.setIsSocialLoginModalOpen);
   const resolveLogin = useSocialLoginStore(state => state.resolveLogin);
   const cancelLogin = useSocialLoginStore(state => state.cancelLogin);
+
+  const isWalletSelectModalOpen = useModalStore(state => state.isWalletSelectModalOpen);
+  const setIsWalletSelectModalOpen = useModalStore(state => state.setIsWalletSelectModalOpen);
+  const resolveWalletSelect = useWalletSelectStore(state => state.resolveSelect);
+  const cancelWalletSelect = useWalletSelectStore(state => state.cancelSelect);
 
   return (
     <div>
@@ -41,6 +48,19 @@ export const AegisWallet = () => {
           onCancel={() => {
             cancelLogin(new UserRejectedRequestError(new Error('User cancelled social login')));
             setIsSocialLoginModalOpen(false);
+          }}
+        />
+      )}
+
+      {isWalletSelectModalOpen && (
+        <WalletSelectModal
+          onConfirm={() => {
+            setIsWalletSelectModalOpen(false);
+            resolveWalletSelect();
+          }}
+          onCancel={() => {
+            cancelWalletSelect(new UserRejectedRequestError(new Error('User cancelled wallet selection')));
+            setIsWalletSelectModalOpen(false);
           }}
         />
       )}
