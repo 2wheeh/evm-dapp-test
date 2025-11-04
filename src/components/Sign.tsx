@@ -1,9 +1,17 @@
-import { useSignMessage } from 'wagmi';
+import { useAccount, useSignMessage, useVerifyMessage } from 'wagmi';
 
 export const SignTx = () => {
   // const { data: walletClient } = useWalletClient();
   // const [signedTx, setSignedTx] = useState<string | null>(null);
-  const { signMessage, data: hash } = useSignMessage();
+  const message = 'Hello Aegis!';
+
+  const { signMessage, data: signature, error: signError } = useSignMessage();
+  const { address } = useAccount();
+  const { data: verified, error: verifyError } = useVerifyMessage({
+    address,
+    message,
+    signature,
+  });
 
   return (
     <div>
@@ -24,8 +32,11 @@ export const SignTx = () => {
         <div>Signed Transaction: {signedTx} </div>
       </div> */}
       <div>
-        <button onClick={() => signMessage({ message: 'Hello Aegis!' })}>signMessage (personal_sign)</button>
-        <div>signMessage Signature: {hash}</div>
+        <button onClick={() => signMessage({ message })}>signMessage (personal_sign)</button>
+        <div>signMessage Signature: {signature}</div>
+        <div>Verified: {verified !== undefined ? (verified ? 'true' : 'false') : 'pending'}</div>
+        {signError && <div>signError: {signError.message}</div>}
+        {verifyError && <div>verifyError: {verifyError.message}</div>}
       </div>
     </div>
   );

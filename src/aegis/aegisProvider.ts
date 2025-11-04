@@ -142,7 +142,7 @@ export class AegisProvider implements Provider, EIP1193Events {
       case 'eth_requestAccounts':
       case 'eth_accounts': {
         // 여기서말하는 account 는 viem account 가 아니라 지갑 주소
-        const accounts = this.storage.wallets.map(w => getAddress(w.address));
+        const accounts = [this.selectedWalletAddress!];
         return accounts satisfies MethodReturnTypeMap['eth_requestAccounts'] as never;
       }
 
@@ -197,9 +197,9 @@ export class AegisProvider implements Provider, EIP1193Events {
           this.storage.wallets.find(w => w.address === this.selectedWalletAddress)!.encryptedSecret
         );
 
-        const [message, address] = args.params as MethodParamsMap['personal_sign'];
-        console.log('AegisProvider: personal_sign called', { message, address });
-
+        const [data, address] = args.params as MethodParamsMap['personal_sign'];
+        console.log('AegisProvider: personal_sign called', { data, address });
+        const message = isHex(data) ? { raw: data } : data;
         if (getAddress(address) !== this.selectedWalletAddress) {
           throw new ProviderRpcError(new Error('Address mismatch'), {
             code: 4900,
