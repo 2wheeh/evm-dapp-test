@@ -35,6 +35,7 @@ const aegisConnector = ({ providerConfig }: AegisConnectorConfig) => {
 
         provider = new AegisProvider({
           chain,
+          // TODO: provider config callback 전달 X. Provider 내부에서 관리하면 됨
           onPasswordRequest: providerConfig.onPasswordRequest,
           selectConnection: providerConfig.selectConnection,
         });

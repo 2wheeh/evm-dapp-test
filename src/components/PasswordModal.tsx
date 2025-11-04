@@ -5,7 +5,7 @@ interface PasswordModalProps {
   onCancel?: () => void;
 }
 
-function PasswordModal({ onConfirm, onCancel }: PasswordModalProps) {
+export function PasswordModal({ onConfirm, onCancel }: PasswordModalProps) {
   const [password, setPassword] = useState('');
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = event => {
@@ -69,5 +69,3 @@ function PasswordModal({ onConfirm, onCancel }: PasswordModalProps) {
     </>
   );
 }
-
-export default PasswordModal;

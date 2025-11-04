@@ -2,11 +2,9 @@ import { createConfig, http } from 'wagmi';
 import { storyAeneid } from 'wagmi/chains';
 import { baseAccount, injected } from 'wagmi/connectors';
 import { aegis } from './aegis/aegisConnector';
-import { TEST_ENCRYPTED_SECRET, TEST_PASSWROD, TEST_PUBLIC_KEY, TEST_UUID, TEST_WALLET_ADDRESS, wait } from './utils';
-import { aegisStorageManager } from './aegis/aegisStorage';
 import { useModalStore } from './stores/useModalStore';
 import { usePasswordStore } from './stores/usePasswordStore';
-// import { UserRejectedRequestError } from 'viem';
+import { useSocialLoginStore } from './stores/useSocialLoginStore';
 
 export const config = createConfig({
   chains: [storyAeneid],
@@ -16,6 +14,7 @@ export const config = createConfig({
     // walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID }),
     aegis({
       providerConfig: {
+        // TODO: move these to inside provider
         onPasswordRequest: async () => {
           const { setIsPasswordModalOpen } = useModalStore.getState();
           setIsPasswordModalOpen(true);
@@ -23,26 +22,10 @@ export const config = createConfig({
           return requestPassword();
         },
         selectConnection: async () => {
-          console.log('AegisProvider: selectConnection called - open UI social login modal here');
-          // throw new UserRejectedRequestError(new Error('User rejected connection')); // 에러 제대로 받는지 확인 - y
-
-          // load from citadel
-          aegisStorageManager.setCurrentUUID(TEST_UUID);
-          aegisStorageManager.setStorage({
-            wallets: [
-              {
-                address: TEST_WALLET_ADDRESS,
-                name: 'Test Wallet',
-                encryptedSecret: TEST_ENCRYPTED_SECRET,
-                publicKey: TEST_PUBLIC_KEY,
-                version: 'V1',
-              },
-            ],
-          });
-
-          // user select a wallet
-          aegisStorageManager.setSelectedWalletAddress(TEST_WALLET_ADDRESS);
-          await wait(2_000); // check status is pending for seconds - y
+          const { setIsSocialLoginModalOpen } = useModalStore.getState();
+          setIsSocialLoginModalOpen(true);
+          const { requestLogin } = useSocialLoginStore.getState();
+          await requestLogin();
         },
       },
     }),
